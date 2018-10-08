@@ -20,13 +20,18 @@ function Start-OpenPixelControlListener {
     }
 
     $ColorStream = Read-TCPBytes -Length $Header.Length -Session $Session.Session
+	$ColorCount = $ColorStream.Count / 3
 
-    $ColorCount = $ColorStream.Count / 3
-
-    (
-        0..($ColorCount - 1) | %{
-            $ThisColor = $ColorStream[(0 + (3 * $_))..((3 + (3 * $_)) - 1)]
-            [System.Drawing.Color]::FromArgb($ThisColor[0],$ThisColor[1],$ThisColor[2])
-        }
-    )
+	New-Object -TypeName PSObject -Property ([ordered]@{
+		Channel = $Header.Channel
+		Command = $Header.Command
+		ColorArray = $(
+			(
+				0..($ColorCount - 1) | %{
+					$ThisColor = $ColorStream[(0 + (3 * $_))..((3 + (3 * $_)) - 1)]
+					[System.Drawing.Color]::FromArgb($ThisColor[0],$ThisColor[1],$ThisColor[2])
+				}
+			)
+		)
+	})
 }
