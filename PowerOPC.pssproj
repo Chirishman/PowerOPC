@@ -37,6 +37,7 @@
     <Compile Include="PowerOPC\Private\Initialize-TCPServer.ps1" />
     <Compile Include="PowerOPC\Private\New-TCPClient.ps1" />
     <Compile Include="PowerOPC\Private\Read-TCPBytes.ps1" />
+    <Compile Include="PowerOPC\Public\New-OpenPixelControlServerSession.ps1" />
     <Compile Include="PowerOPC\Public\New-OpenPixelControlSession.ps1" />
     <Compile Include="PowerOPC\Public\Send-OpenPixelControlCommand.ps1" />
     <Compile Include="PowerOPC\Private\Send-TCPBytes.ps1" />

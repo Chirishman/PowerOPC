@@ -1,7 +1,11 @@
 function Start-OpenPixelControlListener {
     Param(
-
+		[int]$port=1655
     )
+
+	if (-not $Global:OpenPixelControlListenerSession) {
+		New-OpenPixelControlServerSession -Port 1655
+	}
 
     $Header = @{
         Channel = [int](Read-TCPBytes -Length 1)[0]
