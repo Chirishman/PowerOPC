@@ -17,7 +17,8 @@ function New-OpenPixelControlServerSession {
             [System.Security.Principal.TokenImpersonationLevel]::Impersonation
         )
         Write-host "$($client.client.RemoteEndPoint.Address) authenticated as $($Session.Session.RemoteIdentity.Name) via $($Session.Session.RemoteIdentity.AuthenticationType)" -Foreground Green -Background Black
-		$Global:OpenPixelControlListenerSession.Add($Session)
+
+		[void]$Global:OpenPixelControlListenerSession.Add($Session)
     } Catch {
         Write-Warning $_.Exception.Message
     }

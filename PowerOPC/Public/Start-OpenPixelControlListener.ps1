@@ -4,20 +4,22 @@ function Start-OpenPixelControlListener {
     )
 
 	if (-not $Global:OpenPixelControlListenerSession) {
-		New-OpenPixelControlServerSession -Port 1655
+		New-OpenPixelControlServerSession -Port $port
 	}
 
+	$Session = $Global:OpenPixelControlListenerSession | ?{$_.Port -eq $port}
+
     $Header = @{
-        Channel = [int](Read-TCPBytes -Length 1)[0]
-        Command = [int](Read-TCPBytes -Length 1)[0]
+        Channel = [int](Read-TCPBytes -Length 1 -Session $Session.Session )[0]
+        Command = [int](Read-TCPBytes -Length 1 -Session $Session.Session)[0]
         Length = $(
-            $Length = Read-TCPBytes -Length 2
+            $Length = Read-TCPBytes -Length 2 -Session $Session.Session
             [Array]::Reverse($Length)
             [bitconverter]::ToUInt16($Length,0)
         )
     }
 
-    $ColorStream = Read-TCPBytes -Length $Header.Length
+    $ColorStream = Read-TCPBytes -Length $Header.Length -Session $Session.Session
 
     $ColorCount = $ColorStream.Count / 3
 

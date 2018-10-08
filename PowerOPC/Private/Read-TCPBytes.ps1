@@ -1,6 +1,8 @@
 Function Read-TCPBytes {
     Param(
-        [int]$Length,
+        [Parameter(Mandatory)]
+		[int]$Length,
+		[Parameter(Mandatory)]
         [Net.Security.NegotiateStream]$Session
     )
 
