@@ -1,0 +1,51 @@
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>6CAFC0C6-A428-4d30-A9F9-700E829FEA51</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyApplication</RootNamespace>
+    <AssemblyName>MyApplication</AssemblyName>
+    <Name>PowerOPC</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="PowerOPC\" />
+    <Folder Include="PowerOPC\Private\" />
+    <Folder Include="PowerOPC\Public\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="PowerOPC\PowerOPC.psd1" />
+    <Compile Include="PowerOPC\PowerOPC.psm1" />
+    <Compile Include="PowerOPC.tests.ps1" />
+    <Compile Include="PowerOPC\Private\Initialize-TCPServer.ps1" />
+    <Compile Include="PowerOPC\Private\New-TCPClient.ps1" />
+    <Compile Include="PowerOPC\Private\Read-TCPBytes.ps1" />
+    <Compile Include="PowerOPC\Public\New-OpenPixelControlSession.ps1" />
+    <Compile Include="PowerOPC\Public\Send-OpenPixelControlCommand.ps1" />
+    <Compile Include="PowerOPC\Private\Send-TCPBytes.ps1" />
+    <Compile Include="PowerOPC\Public\Start-OpenPixelControlListener.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="README.md" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Target Name="Build" />
+  <Import Project="$(MSBuildExtensionsPath)\PowerShell Tools for Visual Studio\PowerShellTools.targets" Condition="Exists('$(MSBuildExtensionsPath)\PowerShell Tools for Visual Studio\PowerShellTools.targets')" />
+</Project>
