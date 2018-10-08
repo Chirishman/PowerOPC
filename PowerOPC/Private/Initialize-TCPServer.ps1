@@ -12,10 +12,10 @@ function Initialize-TCPListener {
     $client = $listener.AcceptTcpClient()
     $stream = $client.GetStream()
 
-	New-Object -TypeName PSObject -Property [Ordered]@{
+	New-Object -TypeName PSObject -Property ([Ordered]@{
 		Id = $Id
 		Port = $port
 		Client = $client.client.RemoteEndPoint.Address
 		Session = New-Object net.security.NegotiateStream -ArgumentList $stream
-	}
+	})
 }

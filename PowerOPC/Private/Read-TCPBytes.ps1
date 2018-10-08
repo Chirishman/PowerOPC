@@ -8,7 +8,7 @@ Function Read-TCPBytes {
 
     [byte[]]$byte = New-Object byte[] $Length
     Write-Verbose ("{0} Bytes Left" -f $client.Available)
-    $bytesReceived = $NegotiateStream.Read($byte, 0, $byte.Length)
+    $bytesReceived = $Session.Read($byte, 0, $byte.Length)
     If ($bytesReceived -gt 0) {
         Write-Verbose ("{0} Bytes received" -f $bytesReceived)
         #[void]$stringBuilder.Append([text.Encoding]::Ascii.GetString($byte[0..($bytesReceived - 1)]))
