@@ -4,28 +4,44 @@ Function Send-OpenPixelControlCommand {
         [Parameter()]
         [byte]$Channel = 0,
         [Parameter()]
-        [ValidateSet('8BitColor','16BitColor','SystemSpecific')]
+        [ValidateSet('8BitColor', '16BitColor', 'SystemSpecific')]
         [string]$Command = '8BitColor',
         [Parameter(Mandatory)]
         [System.Drawing.Color[]]$Color,
-        [Parameter(Mandatory)]
-        [Net.Security.NegotiateStream]$Session
+        [Parameter(Mandatory, ParameterSetName = 'Session')]
+        [Net.Security.NegotiateStream]$Session,
+        [Parameter(Mandatory, ParameterSetName = 'Id')]
+        [int]$SessionId,
+        [Parameter(Mandatory, ParameterSetName = 'SessionName')]
+        [String]$Name
     )
 
+    
+
     $TCPMessage = @{
-        Data = $null
-        Session = $Session
+        Data    = $null
+        Session = $(
+            switch ($PsCmdlet.ParameterSetName) { 
+                'Session' { $Session }
+                'Id' { $Global:OpenPixelControlSessions | ? {$_.Id -eq $SessionId} }
+                'SessionName' { $Global:OpenPixelControlSessions | ? {$_.Name -eq $Name} }
+            }
+        )
+    }
+
+    If (-not $TCPMessage.Session) {
+        Write-Error -Message 'No Session Found' -Category ObjectNotFound -ErrorAction Stop
     }
 
     $CommandLookup = @{
-        '8BitColor' = [convert]::ToByte(0)
-        '16BitColor' = [convert]::ToByte(1)
+        '8BitColor'      = [convert]::ToByte(0)
+        '16BitColor'     = [convert]::ToByte(1)
         'SystemSpecific' = [convert]::ToByte(255)
     }
 
     #Split color values into bytes
-    [Byte[]]$ColorBytes = $Color | %{
-        [byte[]]($_.R,$_.G,$_.B)
+    [Byte[]]$ColorBytes = $Color | % {
+        [byte[]]($_.R, $_.G, $_.B)
     }
     #Convert the data's length into a byte array
     [byte[]]$LengthBytes = [System.BitConverter]::GetBytes([uint16]$ColorBytes.Count)
@@ -41,7 +57,7 @@ Function Send-OpenPixelControlCommand {
         $LengthBytes,
         #Send Payload Data
         $ColorBytes
-    ) | %{
+    ) | % {
         $TCPMessage.Data = $_
         Send-TCPBytes @TCPMessage
     }
