@@ -16,15 +16,13 @@ Function Send-OpenPixelControlCommand {
         [String]$Name
     )
 
-    
-
     $TCPMessage = @{
         Data    = $null
         Session = $(
             switch ($PsCmdlet.ParameterSetName) { 
                 'Session' { $Session }
-                'Id' { $Global:OpenPixelControlSessions | ? {$_.Id -eq $SessionId} | Select -ExpandProperty Session }
-                'SessionName' { $Global:OpenPixelControlSessions | ? {$_.Name -eq $Name}  | Select -ExpandProperty Session }
+                'Id' { $Global:OpenPixelControlSessions | Where-Object {$_.Id -eq $SessionId} | Select-Object -ExpandProperty Session }
+                'SessionName' { $Global:OpenPixelControlSessions | Where-Object {$_.Name -eq $Name}  | Select-Object -ExpandProperty Session }
             }
         )
     }
@@ -40,25 +38,26 @@ Function Send-OpenPixelControlCommand {
     }
 
     #Split color values into bytes
-    [Byte[]]$ColorBytes = $Color | % {
+    [Byte[]]$ColorBytes = $Color | ForEach-Object {
         [byte[]]($_.R, $_.G, $_.B)
     }
     #Convert the data's length into a byte array
     [byte[]]$LengthBytes = [System.BitConverter]::GetBytes([uint16]$ColorBytes.Count)
     #Reverse the byte array's endianness (from default Little Endian to required Big Endian)
     [Array]::Reverse($LengthBytes)
-
+    
+    #Sort of like the stringbuilder workflow but with binary
+    $BinaryWriter = [System.IO.BinaryWriter]::new([System.IO.MemoryStream]::new())
     @(
-        #Send Channel Selection
         $Channel,
-        #Send Command Selection
         $CommandLookup[$Command],
-        #Send Message Length Info
         $LengthBytes,
-        #Send Payload Data
         $ColorBytes
-    ) | % {
-        $TCPMessage.Data = $_
-        Send-TCPBytes @TCPMessage
+    ) | ForEach-Object {
+        $BinaryWriter.Write($_)
     }
+    
+    $TCPMessage.Data = ($BinaryWriter.BaseStream.ToArray())
+    $BinaryWriter.BaseStream.SetLength(0)
+    Send-TCPBytes @TCPMessage
 }

@@ -11,17 +11,20 @@ function Start-OpenPixelControlListener {
         $Session = $Global:OpenPixelControlListenerSession | ? {$_.Port -eq $port}
     }
 
+    $Message = Read-TCPBytes -Length [uint16]::MaxValue -Session $Session.Session
+
     $Header = @{
-        Channel = [int](Read-TCPBytes -Length 1 -Session $Session.Session )[0]
-        Command = [int](Read-TCPBytes -Length 1 -Session $Session.Session)[0]
+        Channel = [int]$Message[0]
+        Command = [int]$Message[1]
         Length  = $(
-            $Length = Read-TCPBytes -Length 2 -Session $Session.Session
+            $Length = $Message[2, 3]
             [Array]::Reverse($Length)
             [bitconverter]::ToUInt16($Length, 0)
         )
     }
 
-    $ColorStream = Read-TCPBytes -Length $Header.Length -Session $Session.Session
+    $ColorStream = $Message[4..(4 + $Header.Length - 1)]
+
     $ColorCount = $ColorStream.Count / 3
 
     New-Object -TypeName PSObject -Property ([ordered]@{
@@ -36,10 +39,12 @@ function Start-OpenPixelControlListener {
                 )
             )
         })
-	
-		$Session.Stream.Flush()
-		$Session.Session.Flush()
-		
-    Write-Verbose "Closing session to $remoteClient"
+
+    $Session.Stream.Flush()
+    $Session.Session.Flush()
+    
+    $Message.Clear()
+    
+    #Write-Verbose "Closing session to $remoteClient"
     #$Session.Client.Close()
 }
