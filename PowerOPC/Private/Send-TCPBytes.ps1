@@ -1,4 +1,5 @@
 Function Send-TCPBytes {
+    [CmdletBinding()]
     Param(
         [Byte[]]$Data,
         [Net.Security.NegotiateStream]$Session

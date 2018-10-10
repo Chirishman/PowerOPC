@@ -1,25 +1,20 @@
 function New-OpenPixelControlServerSession {
+    [CmdletBinding()]
     Param(
-        [int]$port=1655
+        [int]$port = 1655
     )
 
-	if (-not $Global:OpenPixelControlListenerSession) {
-		$Global:OpenPixelControlListenerSession = [system.collections.arraylist]::new()
-	}
-
-	$Session = Initialize-TCPListener -Id $Global:OpenPixelControlListenerSession.Count -Port $port
-
-    #Validate Alternate credentials
-    Try {
-        $Session.Session.AuthenticateAsServer(
-            [System.Net.CredentialCache]::DefaultNetworkCredentials,
-            [System.Net.Security.ProtectionLevel]::EncryptAndSign,
-            [System.Security.Principal.TokenImpersonationLevel]::Impersonation
-        )
-        Write-host "$($client.client.RemoteEndPoint.Address) authenticated as $($Session.Session.RemoteIdentity.Name) via $($Session.Session.RemoteIdentity.AuthenticationType)" -Foreground Green -Background Black
-
-		[void]$Global:OpenPixelControlListenerSession.Add($Session)
-    } Catch {
-        Write-Warning $_.Exception.Message
+    if (-not $Global:OpenPixelControlListenerSession) {
+        $Global:OpenPixelControlListenerSession = [system.collections.arraylist]::new()
     }
+
+    if (-not ($Client = $Global:OpenPixelControlListenerSession | ? {$_.Port -eq $port})) {
+        Write-Verbose -Message 'Bootstrapping Client'
+        $Client = Initialize-TCPListener -Id $Global:OpenPixelControlListenerSession.Count -Port $port
+    }
+    
+    #Validate Alternate credentials
+    Write-Verbose -Message 'Requesting Creds'
+    Request-TCPCredential -Client ([ref]$Client)
+    [void]$Global:OpenPixelControlListenerSession.Add($Client)
 }

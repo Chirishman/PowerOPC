@@ -1,4 +1,5 @@
 Function Read-TCPBytes {
+    [CmdletBinding()]
     Param(
         [Parameter(Mandatory)]
 		[int]$Length,
@@ -21,4 +22,5 @@ Function Read-TCPBytes {
     }
 
     $ArrayList
+    $byte.Clear()
 }

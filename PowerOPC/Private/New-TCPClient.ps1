@@ -1,4 +1,5 @@
 function New-TCPClient {
+    [CmdletBinding()]
 	Param(
 		[Parameter()]
         [Int]$port=1655,

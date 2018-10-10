@@ -1,4 +1,5 @@
 function New-OpenPixelControlSession {
+    [CmdletBinding()]
     Param(
         [Parameter()]
         [Int]$port=1655,

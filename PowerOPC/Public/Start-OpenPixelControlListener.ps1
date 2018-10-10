@@ -1,37 +1,45 @@
 function Start-OpenPixelControlListener {
+    [CmdletBinding()]
     Param(
-		[int]$port=1655
+        [int]$port = 1655
     )
-
-	if (-not $Global:OpenPixelControlListenerSession) {
-		New-OpenPixelControlServerSession -Port $port
-	}
-
-	$Session = $Global:OpenPixelControlListenerSession | ?{$_.Port -eq $port}
+	
+    $Session = $Global:OpenPixelControlListenerSession | ? {$_.Port -eq $port}
+	
+    if (-not $Session) {
+        New-OpenPixelControlServerSession -Port $port
+        $Session = $Global:OpenPixelControlListenerSession | ? {$_.Port -eq $port}
+    }
 
     $Header = @{
         Channel = [int](Read-TCPBytes -Length 1 -Session $Session.Session )[0]
         Command = [int](Read-TCPBytes -Length 1 -Session $Session.Session)[0]
-        Length = $(
+        Length  = $(
             $Length = Read-TCPBytes -Length 2 -Session $Session.Session
             [Array]::Reverse($Length)
-            [bitconverter]::ToUInt16($Length,0)
+            [bitconverter]::ToUInt16($Length, 0)
         )
     }
 
     $ColorStream = Read-TCPBytes -Length $Header.Length -Session $Session.Session
-	$ColorCount = $ColorStream.Count / 3
+    $ColorCount = $ColorStream.Count / 3
 
-	New-Object -TypeName PSObject -Property ([ordered]@{
-		Channel = $Header.Channel
-		Command = $Header.Command
-		ColorArray = $(
-			(
-				0..($ColorCount - 1) | %{
-					$ThisColor = $ColorStream[(0 + (3 * $_))..((3 + (3 * $_)) - 1)]
-					[System.Drawing.Color]::FromArgb($ThisColor[0],$ThisColor[1],$ThisColor[2])
-				}
-			)
-		)
-	})
+    New-Object -TypeName PSObject -Property ([ordered]@{
+            Channel    = $Header.Channel
+            Command    = $Header.Command
+            ColorArray = $(
+                (
+                    0..($ColorCount - 1) | % {
+                        $ThisColor = $ColorStream[(0 + (3 * $_))..((3 + (3 * $_)) - 1)]
+                        [System.Drawing.Color]::FromArgb($ThisColor[0], $ThisColor[1], $ThisColor[2])
+                    }
+                )
+            )
+        })
+	
+		$Session.Stream.Flush()
+		$Session.Session.Flush()
+		
+    Write-Verbose "Closing session to $remoteClient"
+    #$Session.Client.Close()
 }

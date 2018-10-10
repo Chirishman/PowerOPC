@@ -1,4 +1,5 @@
 Function Send-OpenPixelControlCommand {
+    [CmdletBinding()]
     Param(
         [Parameter()]
         [byte]$Channel = 0,
