@@ -11,7 +11,7 @@ function Start-OpenPixelControlListener {
         $Session = $Global:OpenPixelControlListenerSession | ? {$_.Port -eq $port}
     }
 
-    $Message = Read-TCPBytes -Length [uint16]::MaxValue -Session $Session.Session
+    $Message = Read-TCPBytes -Length ([int]([uint16]::MaxValue)) -Session $Session.Session
 
     $Header = @{
         Channel = [int]$Message[0]
