@@ -23,8 +23,8 @@ Function Send-OpenPixelControlCommand {
         Session = $(
             switch ($PsCmdlet.ParameterSetName) { 
                 'Session' { $Session }
-                'Id' { $Global:OpenPixelControlSessions | ? {$_.Id -eq $SessionId} }
-                'SessionName' { $Global:OpenPixelControlSessions | ? {$_.Name -eq $Name} }
+                'Id' { $Global:OpenPixelControlSessions | ? {$_.Id -eq $SessionId} | Select -ExpandProperty Session }
+                'SessionName' { $Global:OpenPixelControlSessions | ? {$_.Name -eq $Name}  | Select -ExpandProperty Session }
             }
         )
     }

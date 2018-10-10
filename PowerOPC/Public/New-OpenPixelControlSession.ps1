@@ -32,7 +32,7 @@ function New-OpenPixelControlSession {
                 Id      = $Id
                 Name    = $Name
                 Server  = $server
-                Session = New-TCPClient @PSBoundParameters
+                Session = New-TCPClient -Port $Port -Server $Server -Credential $Credential
             })
 
         if ($ThisSession.Session) {
