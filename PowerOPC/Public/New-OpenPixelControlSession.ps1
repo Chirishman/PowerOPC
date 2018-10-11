@@ -14,8 +14,7 @@ function New-OpenPixelControlSession {
     if (-not(Get-Variable -Name OpenPixelControlSessions -ErrorAction SilentlyContinue)) {
         $Global:OpenPixelControlSessions = [System.Collections.ArrayList]::new()
         $Id = 0
-    }
-    else {
+    } else {
         $Id = ($Global:OpenPixelControlSessions | measure -Maximum Id | select -ExpandProperty Maximum) + 1
     }
 
@@ -23,11 +22,9 @@ function New-OpenPixelControlSession {
         $Name = 'Session{0:000}' -f $Id
     }
     
-    if (($MatchingSession = $Global:OpenPixelControlSessions | ? {$_.server -eq $server -and $_.port -eq $port})) {
-        $MatchingSession.Name = $Name
-        $MatchingSession.Session = New-TCPClient @PSBoundParameters
-    }
-    else {
+    if (($MatchingSession = $Global:OpenPixelControlSessions | ? {$_.server -eq $server -and $_.Name -eq $Name})) {
+        $MatchingSession.Session = New-TCPClient -Port $Port -Server $Server -Credential $Credential
+    } else {
         $ThisSession = New-Object -TypeName PSObject -Property ([ordered]@{
                 Id      = $Id
                 Name    = $Name
