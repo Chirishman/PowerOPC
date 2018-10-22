@@ -4,11 +4,11 @@ function Start-OpenPixelControlListener {
         [int]$port = 1655
     )
 	
-    $Session = $Global:OpenPixelControlListenerSession | ? {$_.Port -eq $port}
+    $Session = $Global:OpenPixelControlListenerSession | Where-Object {$_.Port -eq $port}
 	
     if (-not $Session) {
         New-OpenPixelControlServerSession -Port $port
-        $Session = $Global:OpenPixelControlListenerSession | ? {$_.Port -eq $port}
+        $Session = $Global:OpenPixelControlListenerSession | Where-Object {$_.Port -eq $port}
     }
 
     $Message = Read-TCPBytes -Length ([int]([uint16]::MaxValue)) -Session $Session.Session
@@ -32,7 +32,7 @@ function Start-OpenPixelControlListener {
             Command    = $Header.Command
             ColorArray = $(
                 (
-                    0..($ColorCount - 1) | % {
+                    0..($ColorCount - 1) | ForEach-Object {
                         $ThisColor = $ColorStream[(0 + (3 * $_))..((3 + (3 * $_)) - 1)]
                         [System.Drawing.Color]::FromArgb($ThisColor[0], $ThisColor[1], $ThisColor[2])
                     }
